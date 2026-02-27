@@ -15,17 +15,26 @@
     <div id="toast"></div>
 
     <script>
-    // Auto-hide undo toast ~10s after it appears
-    document.body.addEventListener("htmx:afterSwap", (ev) => {
-        if (ev.target && ev.target.id === "toast") {
-        window.clearTimeout(window.__toastTimer);
-        window.__toastTimer = window.setTimeout(() => {
-            const t = document.getElementById("toast");
-            if (t) t.innerHTML = "";
-        }, 10000);
+        function armToastTimer() {
+          const t = document.getElementById("toast");
+          if (!t) return;
+      
+          // Only arm timer when there is something to show
+          if (!t.innerHTML || t.innerHTML.trim() === "") return;
+      
+          window.clearTimeout(window.__toastTimer);
+          window.__toastTimer = window.setTimeout(() => {
+            const t2 = document.getElementById("toast");
+            if (t2) t2.innerHTML = "";
+          }, 10000);
         }
-    });
-    </script>
+      
+        // Normal swaps (when toast is the target)
+        document.body.addEventListener("htmx:afterSwap", armToastTimer);
+      
+        // Out-of-band swaps (your current case)
+        document.body.addEventListener("htmx:oobAfterSwap", armToastTimer);
+      </script>
     <div class="container">
       <header class="header">
         <h1>Health Tracker</h1>
