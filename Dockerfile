@@ -2,9 +2,12 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Keep it minimal for now
+# Install sqlite CLI
+RUN apt-get update && \
+    apt-get install -y sqlite3 && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Code will be bind-mounted at runtime (Option B), but copy anyway for build completeness
 COPY . /app
