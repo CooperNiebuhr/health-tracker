@@ -31,14 +31,16 @@
       <div class="row-actions">
         <button class="btn-small" type="submit">Save</button>
   
+        <input type="hidden" name="range" value="{{ range_key }}" />
+
         <button
-          type="button"
-          class="btn-small"
-          hx-get="/partials/entry/{{ e['id'] }}"
-          hx-target="#entry-{{ e['id'] }}"
-          hx-swap="outerHTML"
+        type="button"
+        class="btn-small"
+        hx-get="/partials/entry/{{ e['id'] }}?range={{ range_key }}"
+        hx-target="#entry-{{ e['id'] }}"
+        hx-swap="outerHTML"
         >
-          Cancel
+        Cancel
         </button>
       </div>
     </form>

@@ -37,7 +37,7 @@ def history_partial(request: Request, range: str = "30d"):
     entries = list_weight_entries(range_key=range)
     return templates.TemplateResponse(
         "partials/history.html",
-        {"request": request, "entries": entries},
+        {"request": request, "entries": entries, "range_key": range},
     )
 
 
@@ -69,27 +69,26 @@ def create_entry(
     entries = list_weight_entries(range_key=range)
     return templates.TemplateResponse(
         "partials/history.html",
-        {"request": request, "entries": entries},
+        {"request": request, "entries": entries, "range_key": range},
     )
 
 @app.get("/partials/entry/{entry_id}", response_class=HTMLResponse)
-def entry_row(request: Request, entry_id: int):
+def entry_row(request: Request, entry_id: int, range: str = "30d"):
     e = get_weight_entry(entry_id)
     if e is None:
         raise HTTPException(status_code=404, detail="Not found")
     return templates.TemplateResponse(
         "partials/history_row.html",
-        {"request": request, "e": e},
+        {"request": request, "e": e, "range_key": range},
     )
 
 
 @app.get("/partials/entry/{entry_id}/edit", response_class=HTMLResponse)
-def entry_row_edit(request: Request, entry_id: int):
+def entry_row_edit(request: Request, entry_id: int, range: str = "30d"):
     e = get_weight_entry(entry_id)
     if e is None:
         raise HTTPException(status_code=404, detail="Not found")
 
-    # Parse entry_ts to prefill time (HH:MM)
     dt = datetime.fromisoformat(e["entry_ts"])
     entry_time = dt.strftime("%H:%M")
 
@@ -100,6 +99,7 @@ def entry_row_edit(request: Request, entry_id: int):
             "e": e,
             "entry_date": e["entry_date"],
             "entry_time": entry_time,
+            "range_key": range,
         },
     )
 
@@ -131,7 +131,7 @@ def patch_entry(
     e2 = get_weight_entry(entry_id)
     return templates.TemplateResponse(
         "partials/history_row.html",
-        {"request": request, "e": e2},
+        {"request": request, "e": e2, "range_key": range},
     )
 
 
@@ -215,3 +215,12 @@ def set_day_activity(
         did_walk=int(row["did_walk"]) if row else 0,
     )
     return HTMLResponse(html, headers={"HX-Trigger": "flagsChanged"})
+
+
+@app.get("/partials/history", response_class=HTMLResponse)
+def history_partial(request: Request, range: str = "30d"):
+    entries = list_weight_entries(range_key=range)
+    return templates.TemplateResponse(
+        "partials/history.html",
+        {"request": request, "entries": entries, "range_key": range},
+    )

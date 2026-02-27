@@ -51,6 +51,7 @@
             hx-target="#history"
             hx-swap="innerHTML"
         >
+        <input type="hidden" name="range" id="range_key" value="{{ default_range }}" />
           <label class="label">
             Date
             <input class="input" type="date" name="entry_date" />
@@ -67,7 +68,7 @@
           </label>
 
           <button class="btn" type="submit">
-            Save (Step 4)
+            Save
           </button>
         </form>
       </section>
@@ -163,8 +164,9 @@
           const walk = Number(p.did_walk) === 1;
       
           if (w && walk) return "green";
-          if (w && !walk) return "orange";
-          return "blue"; // includes walk-only + neither (per plan)
+          if (w && !walk) return "blue";
+          if (!w && walk) return "orange";
+          return "white";
         }
       
         async function loadSeries(rangeKey) {
@@ -227,9 +229,13 @@
             btn.addEventListener("click", async () => {
               const r = btn.dataset.range;
               currentRange = r;
-              setActiveChip(r);
+              document.getElementById("range_key").value = r;
+
+              // refresh history fragment
+              htmx.ajax("GET", `/partials/history?range=${encodeURIComponent(r)}`, "#history");
+
+              // refresh graph (you already do this)
               await renderOrUpdateChart(r);
-              // history wiring together with toggles comes in Step 9
             });
           });
         }
