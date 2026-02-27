@@ -1,0 +1,126 @@
+:root {
+    --bg: #0b0c10;
+    --card: #14161d;
+    --text: #e8eaf0;
+    --muted: #a7adbd;
+    --border: #2a2f3a;
+  }
+  
+  * { box-sizing: border-box; }
+  
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  
+  .header h1 {
+    margin: 0 0 6px 0;
+    font-size: 22px;
+  }
+  
+  .subtle {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 12px;
+  }
+  
+  .card-title {
+    font-weight: 650;
+    margin-bottom: 10px;
+  }
+  
+  .graph-placeholder,
+  .history-placeholder {
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    color: var(--muted);
+    min-height: 120px;
+  }
+  
+  .range-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  
+  .chip {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  .chip-active {
+    background: #1f2430;
+  }
+  
+  .form {
+    display: grid;
+    gap: 10px;
+  }
+  
+  .label {
+    display: grid;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  
+  .input {
+    width: 100%;
+    background: #0f1117;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    color: var(--text);
+    font-size: 16px;
+  }
+  
+  .textarea { resize: vertical; }
+  
+  .btn {
+    width: 100%;
+    border: 0;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 650;
+  }
+  
+  .btn:disabled {
+    opacity: 0.5;
+  }
+  
+  .toggle-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }

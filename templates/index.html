@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Health Tracker</title>
+
+    <link rel="stylesheet" href="/static/styles.css" />
+
+    <!-- HTMX for next phase -->
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>Health Tracker</h1>
+        <div class="subtle">Weight (lbs) — local time: America/Chicago</div>
+      </header>
+
+      <!-- Graph placeholder -->
+      <section class="card">
+        <div class="card-title">Trend</div>
+        <div id="graph" class="graph-placeholder">
+          (graph will go here)
+        </div>
+
+        <!-- Range toggles (placeholder) -->
+        <div class="range-row" role="group" aria-label="Range">
+          {% for r in ["7","14","30","90","all"] %}
+            <button
+              type="button"
+              class="chip {% if r == default_range %}chip-active{% endif %}"
+              data-range="{{ r }}"
+            >
+              {{ r }}
+            </button>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- New entry form (not wired yet) -->
+      <section class="card">
+        <div class="card-title">New entry</div>
+
+        <form class="form">
+          <label class="label">
+            Date
+            <input class="input" type="date" name="entry_date" />
+          </label>
+
+          <label class="label">
+            Weight (lbs)
+            <input class="input" type="number" step="0.1" min="150" max="250" name="weight_lbs" />
+          </label>
+
+          <label class="label">
+            Notes
+            <textarea class="input textarea" name="notes" rows="3" placeholder="optional"></textarea>
+          </label>
+
+          <button class="btn" type="submit" disabled title="Wiring comes in Step 4">
+            Save (Step 4)
+          </button>
+        </form>
+      </section>
+
+      <!-- Day activity toggles (not wired yet) -->
+      <section class="card">
+        <div class="card-title">Day flags</div>
+
+        <div class="toggle-row">
+          <label class="toggle">
+            <input type="checkbox" disabled />
+            <span>Workout</span>
+          </label>
+
+          <label class="toggle">
+            <input type="checkbox" disabled />
+            <span>Walk</span>
+          </label>
+        </div>
+
+        <div class="subtle">(wiring comes in later step)</div>
+      </section>
+
+      <!-- History container placeholder -->
+      <section class="card">
+        <div class="card-title">History</div>
+        <div id="history" class="history-placeholder">
+          (entries will render here)
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
