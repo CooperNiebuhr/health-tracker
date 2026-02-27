@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 import sqlite3
 from pathlib import Path
+from datetime import date
+from typing import Optional
 
 DB_PATH = Path(os.getenv("HEALTH_DB_PATH", "/data/health.sqlite3"))
 
@@ -48,5 +50,58 @@ def init_db() -> None:
     try:
         conn.executescript(SCHEMA_SQL)
         conn.commit()
+    finally:
+        conn.close()
+
+
+def insert_weight_entry(
+    *,
+    entry_ts: str,
+    entry_date: str,
+    weight_lbs: float,
+    notes: Optional[str],
+) -> int:
+    conn = connect()
+    try:
+        cur = conn.execute(
+            """
+            INSERT INTO weight_entries (entry_ts, entry_date, weight_lbs, notes)
+            VALUES (?, ?, ?, ?)
+            """,
+            (entry_ts, entry_date, weight_lbs, notes),
+        )
+        conn.commit()
+        return int(cur.lastrowid)
+    finally:
+        conn.close()
+
+
+def list_weight_entries(*, range_key: str, limit: int = 200) -> list[sqlite3.Row]:
+    # range_key: 7d/14d/30d/90d/all
+    days_map = {"7d": 7, "14d": 14, "30d": 30, "90d": 90}
+
+    where = "deleted_at IS NULL"
+    params: list[object] = []
+
+    if range_key in days_map:
+        # entry_date stored as YYYY-MM-DD, so lexicographic compare works
+        cutoff = date.today().toordinal() - days_map[range_key] + 1
+        cutoff_date = date.fromordinal(cutoff).isoformat()
+        where += " AND entry_date >= ?"
+        params.append(cutoff_date)
+
+    conn = connect()
+    try:
+        cur = conn.execute(
+            f"""
+            SELECT id, entry_ts, entry_date, weight_lbs, notes, deleted_at
+            FROM weight_entries
+            WHERE {where}
+            ORDER BY entry_ts DESC
+            LIMIT ?
+            """,
+            (*params, limit),
+        )
+        return list(cur.fetchall())
     finally:
         conn.close()

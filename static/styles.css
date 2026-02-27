@@ -124,3 +124,37 @@
     border: 1px solid var(--border);
     border-radius: 12px;
   }
+
+  .history-list {
+    display: grid;
+    gap: 10px;
+  }
+  
+  .history-row {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    background: #0f1117;
+  }
+  
+  .row-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: baseline;
+  }
+  
+  .row-date { font-weight: 650; }
+  .row-weight { font-weight: 650; }
+  
+  .row-subtle {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    word-break: break-word;
+  }
+  
+  .row-notes {
+    margin-top: 8px;
+    white-space: pre-wrap;
+  }

@@ -1,0 +1,9 @@
+{% if entries|length == 0 %}
+  <div class="subtle">(no entries yet)</div>
+{% else %}
+  <div class="history-list">
+    {% for e in entries %}
+      {% include "partials/history_row.html" %}
+    {% endfor %}
+  </div>
+{% endif %}

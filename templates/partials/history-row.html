@@ -1,0 +1,12 @@
+<div class="history-row" id="entry-{{ e['id'] }}">
+    <div class="row-top">
+      <div class="row-date">{{ e["entry_date"] }}</div>
+      <div class="row-weight">{{ "%.1f"|format(e["weight_lbs"]) }} lb</div>
+    </div>
+  
+    <div class="row-subtle">{{ e["entry_ts"] }}</div>
+  
+    {% if e["notes"] %}
+      <div class="row-notes">{{ e["notes"] }}</div>
+    {% endif %}
+  </div>

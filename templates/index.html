@@ -27,7 +27,7 @@
 
         <!-- Range toggles (placeholder) -->
         <div class="range-row" role="group" aria-label="Range">
-          {% for r in ["7","14","30","90","all"] %}
+            {% for r in ["7d","14d","30d","90d","all"] %}
             <button
               type="button"
               class="chip {% if r == default_range %}chip-active{% endif %}"
@@ -43,7 +43,12 @@
       <section class="card">
         <div class="card-title">New entry</div>
 
-        <form class="form">
+        <form
+            class="form"
+            hx-post="/entries"
+            hx-target="#history"
+            hx-swap="innerHTML"
+        >
           <label class="label">
             Date
             <input class="input" type="date" name="entry_date" />
@@ -59,7 +64,7 @@
             <textarea class="input textarea" name="notes" rows="3" placeholder="optional"></textarea>
           </label>
 
-          <button class="btn" type="submit" disabled title="Wiring comes in Step 4">
+          <button class="btn" type="submit">
             Save (Step 4)
           </button>
         </form>
@@ -87,9 +92,15 @@
       <!-- History container placeholder -->
       <section class="card">
         <div class="card-title">History</div>
-        <div id="history" class="history-placeholder">
-          (entries will render here)
-        </div>
+        <div
+            id="history"
+            hx-get="/partials/history?range={{ default_range }}"
+            hx-trigger="load"
+            hx-swap="innerHTML"
+            class="history-placeholder"
+        >
+            (loading…)
+            </div>
       </section>
     </div>
   </body>
