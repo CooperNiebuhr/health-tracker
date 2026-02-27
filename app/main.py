@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
 
-from app.db import daily_series, get_weight_entry, init_db, insert_weight_entry, list_weight_entries, restore_weight_entry, soft_delete_weight_entry, update_weight_entry
+from app.db import daily_series, get_day_flags, get_weight_entry, init_db, insert_weight_entry, list_weight_entries, restore_weight_entry, soft_delete_weight_entry, update_weight_entry, upsert_day_flags
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -25,9 +25,10 @@ def _startup() -> None:
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
+    flags_date = datetime.now(CHI).date().isoformat()
     return templates.TemplateResponse(
         "index.html",
-        {"request": request, "default_range": "30d"},
+        {"request": request, "default_range": "30d", "flags_date": flags_date},
     )
 
 
@@ -178,3 +179,39 @@ def undo_delete(request: Request, entry_id: int, range: str = "30d"):
 @app.get("/api/series", response_class=JSONResponse)
 def api_series(range: str = "30d"):
     return daily_series(range_key=range)
+
+@app.get("/partials/day_flags", response_class=HTMLResponse)
+def day_flags_partial(request: Request, date: str):
+    row = get_day_flags(date)
+    did_workout = int(row["did_workout"]) if row else 0
+    did_walk = int(row["did_walk"]) if row else 0
+
+    return templates.TemplateResponse(
+        "partials/day_flags.html",
+        {
+            "request": request,
+            "date": date,
+            "did_workout": did_workout,
+            "did_walk": did_walk,
+        },
+    )
+
+
+@app.post("/day/{date}/activity", response_class=HTMLResponse)
+def set_day_activity(
+    request: Request,
+    date: str,
+    did_workout: int = Form(0),
+    did_walk: int = Form(0),
+):
+    upsert_day_flags(entry_date=date, did_workout=did_workout, did_walk=did_walk)
+
+    # Return updated partial + trigger graph refresh (client JS listens)
+    row = get_day_flags(date)
+    html = templates.get_template("partials/day_flags.html").render(
+        request=request,
+        date=date,
+        did_workout=int(row["did_workout"]) if row else 0,
+        did_walk=int(row["did_walk"]) if row else 0,
+    )
+    return HTMLResponse(html, headers={"HX-Trigger": "flagsChanged"})

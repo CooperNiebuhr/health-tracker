@@ -231,3 +231,38 @@ def daily_series(range_key: str) -> list[dict]:
         ]
     finally:
         conn.close()
+
+
+def get_day_flags(entry_date: str) -> sqlite3.Row | None:
+    conn = connect()
+    try:
+        cur = conn.execute(
+            """
+            SELECT entry_date, did_workout, did_walk
+            FROM day_flags
+            WHERE entry_date = ?
+            """,
+            (entry_date,),
+        )
+        return cur.fetchone()
+    finally:
+        conn.close()
+
+
+def upsert_day_flags(*, entry_date: str, did_workout: int, did_walk: int) -> None:
+    conn = connect()
+    try:
+        conn.execute(
+            """
+            INSERT INTO day_flags (entry_date, did_workout, did_walk, updated_at)
+            VALUES (?, ?, ?, datetime('now'))
+            ON CONFLICT(entry_date) DO UPDATE SET
+              did_workout = excluded.did_workout,
+              did_walk = excluded.did_walk,
+              updated_at = datetime('now')
+            """,
+            (entry_date, int(did_workout), int(did_walk)),
+        )
+        conn.commit()
+    finally:
+        conn.close()
