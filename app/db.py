@@ -180,3 +180,54 @@ def restore_weight_entry(entry_id: int) -> None:
         conn.commit()
     finally:
         conn.close()
+
+
+def daily_series(range_key: str) -> list[dict]:
+    days_map = {"7d": 7, "14d": 14, "30d": 30, "90d": 90}
+
+    where = "we.deleted_at IS NULL"
+    params: list[object] = []
+
+    if range_key in days_map:
+        cutoff = date.today().toordinal() - days_map[range_key] + 1
+        cutoff_date = date.fromordinal(cutoff).isoformat()
+        where += " AND we.entry_date >= ?"
+        params.append(cutoff_date)
+
+    conn = connect()
+    try:
+        cur = conn.execute(
+            f"""
+            WITH latest AS (
+              SELECT entry_date, MAX(entry_ts) AS max_ts
+              FROM weight_entries
+              WHERE deleted_at IS NULL
+              GROUP BY entry_date
+            )
+            SELECT
+              we.entry_date AS date,
+              we.weight_lbs AS weight,
+              COALESCE(df.did_workout, 0) AS did_workout,
+              COALESCE(df.did_walk, 0) AS did_walk
+            FROM weight_entries we
+            JOIN latest l
+              ON l.entry_date = we.entry_date AND l.max_ts = we.entry_ts
+            LEFT JOIN day_flags df
+              ON df.entry_date = we.entry_date
+            WHERE {where}
+            ORDER BY we.entry_date ASC
+            """,
+            params,
+        )
+        rows = cur.fetchall()
+        return [
+            {
+                "date": r["date"],
+                "weight": float(r["weight"]),
+                "did_workout": int(r["did_workout"]),
+                "did_walk": int(r["did_walk"]),
+            }
+            for r in rows
+        ]
+    finally:
+        conn.close()

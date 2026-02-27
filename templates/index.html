@@ -9,6 +9,7 @@
 
     <!-- HTMX for next phase -->
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   </head>
 
   <body>
@@ -35,18 +36,103 @@
         // Out-of-band swaps (your current case)
         document.body.addEventListener("htmx:oobAfterSwap", armToastTimer);
       </script>
+      <script>
+        let currentRange = "{{ default_range }}";
+        let chart = null;
+      
+        function pointColor(p) {
+          const w = Number(p.did_workout) === 1;
+          const walk = Number(p.did_walk) === 1;
+      
+          if (w && walk) return "green";
+          if (w && !walk) return "orange";
+          return "blue"; // includes walk-only + neither (per plan)
+        }
+      
+        async function loadSeries(rangeKey) {
+          const res = await fetch(`/api/series?range=${encodeURIComponent(rangeKey)}`);
+          return await res.json();
+        }
+      
+        async function renderOrUpdateChart(rangeKey) {
+          const series = await loadSeries(rangeKey);
+      
+          const labels = series.map(p => p.date);
+          const data = series.map(p => Number(p.weight));
+          const colors = series.map(pointColor);
+      
+          const ctx = document.getElementById("weightChart");
+          if (!ctx) return;
+      
+          if (!chart) {
+            chart = new Chart(ctx, {
+              type: "line",
+              data: {
+                labels,
+                datasets: [{
+                  label: "Weight (lb)",
+                  data,
+                  pointRadius: 4,
+                  pointHoverRadius: 6,
+                  pointBackgroundColor: colors,
+                  tension: 0.2
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    min: 150,
+                    max: 250
+                  }
+                }
+              }
+            });
+            return;
+          }
+      
+          chart.data.labels = labels;
+          chart.data.datasets[0].data = data;
+          chart.data.datasets[0].pointBackgroundColor = colors;
+          chart.update();
+        }
+      
+        function setActiveChip(rangeKey) {
+          document.querySelectorAll(".chip[data-range]").forEach(btn => {
+            btn.classList.toggle("chip-active", btn.dataset.range === rangeKey);
+          });
+        }
+      
+        function bindRangeChips() {
+          document.querySelectorAll(".chip[data-range]").forEach(btn => {
+            btn.addEventListener("click", async () => {
+              const r = btn.dataset.range;
+              currentRange = r;
+              setActiveChip(r);
+              await renderOrUpdateChart(r);
+              // history wiring together with toggles comes in Step 9
+            });
+          });
+        }
+      
+        window.addEventListener("load", async () => {
+          bindRangeChips();
+          setActiveChip(currentRange);
+          await renderOrUpdateChart(currentRange);
+        });
+      </script>
     <div class="container">
       <header class="header">
         <h1>Health Tracker</h1>
-        <div class="subtle">Weight (lbs) — local time: America/Chicago</div>
       </header>
 
       <!-- Graph placeholder -->
       <section class="card">
         <div class="card-title">Trend</div>
-        <div id="graph" class="graph-placeholder">
-          (graph will go here)
-        </div>
+        <div class="chart-wrap">
+            <canvas id="weightChart" height="220"></canvas>
+          </div>
 
         <!-- Range toggles (placeholder) -->
         <div class="range-row" role="group" aria-label="Range">

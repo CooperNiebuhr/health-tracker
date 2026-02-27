@@ -7,8 +7,9 @@ from fastapi import FastAPI, Form, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import JSONResponse
 
-from app.db import get_weight_entry, init_db, insert_weight_entry, list_weight_entries, restore_weight_entry, soft_delete_weight_entry, update_weight_entry
+from app.db import daily_series, get_weight_entry, init_db, insert_weight_entry, list_weight_entries, restore_weight_entry, soft_delete_weight_entry, update_weight_entry
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -172,3 +173,8 @@ def undo_delete(request: Request, entry_id: int, range: str = "30d"):
         history_html
         + '<div id="toast" hx-swap-oob="innerHTML"></div>'
     )
+
+
+@app.get("/api/series", response_class=JSONResponse)
+def api_series(range: str = "30d"):
+    return daily_series(range_key=range)
