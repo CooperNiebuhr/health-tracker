@@ -158,3 +158,28 @@
     margin-top: 8px;
     white-space: pre-wrap;
   }
+
+  .row-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .btn-small {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .btn-small:disabled {
+    opacity: 0.5;
+  }
+  
+  .edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }

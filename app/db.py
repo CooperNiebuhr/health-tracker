@@ -105,3 +105,46 @@ def list_weight_entries(*, range_key: str, limit: int = 200) -> list[sqlite3.Row
         return list(cur.fetchall())
     finally:
         conn.close()
+
+
+def get_weight_entry(entry_id: int) -> sqlite3.Row | None:
+    conn = connect()
+    try:
+        cur = conn.execute(
+            """
+            SELECT id, entry_ts, entry_date, weight_lbs, notes, deleted_at
+            FROM weight_entries
+            WHERE id = ?
+            """,
+            (entry_id,),
+        )
+        return cur.fetchone()
+    finally:
+        conn.close()
+
+
+def update_weight_entry(
+    *,
+    entry_id: int,
+    entry_ts: str,
+    entry_date: str,
+    weight_lbs: float,
+    notes: Optional[str],
+) -> None:
+    conn = connect()
+    try:
+        conn.execute(
+            """
+            UPDATE weight_entries
+            SET entry_ts = ?,
+                entry_date = ?,
+                weight_lbs = ?,
+                notes = ?,
+                updated_at = datetime('now')
+            WHERE id = ? AND deleted_at IS NULL
+            """,
+            (entry_ts, entry_date, weight_lbs, notes, entry_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()

@@ -1,0 +1,45 @@
+<div class="history-row" id="entry-{{ e['id'] }}">
+    <form
+      class="form"
+      hx-patch="/entries/{{ e['id'] }}"
+      hx-target="#entry-{{ e['id'] }}"
+      hx-swap="outerHTML"
+    >
+      <div class="edit-grid">
+        <label class="label">
+          Date
+          <input class="input" type="date" name="entry_date" value="{{ entry_date }}" required />
+        </label>
+  
+        <label class="label">
+          Time
+          <input class="input" type="time" name="entry_time" value="{{ entry_time }}" required />
+        </label>
+      </div>
+  
+      <label class="label">
+        Weight (lbs)
+        <input class="input" type="number" step="0.1" min="150" max="250" name="weight_lbs"
+               value="{{ '%.1f'|format(e['weight_lbs']) }}" required />
+      </label>
+  
+      <label class="label">
+        Notes
+        <textarea class="input textarea" name="notes" rows="3" placeholder="optional">{{ e["notes"] or "" }}</textarea>
+      </label>
+  
+      <div class="row-actions">
+        <button class="btn-small" type="submit">Save</button>
+  
+        <button
+          type="button"
+          class="btn-small"
+          hx-get="/partials/entry/{{ e['id'] }}"
+          hx-target="#entry-{{ e['id'] }}"
+          hx-swap="outerHTML"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
