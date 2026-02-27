@@ -12,6 +12,20 @@
   </head>
 
   <body>
+    <div id="toast"></div>
+
+    <script>
+    // Auto-hide undo toast ~10s after it appears
+    document.body.addEventListener("htmx:afterSwap", (ev) => {
+        if (ev.target && ev.target.id === "toast") {
+        window.clearTimeout(window.__toastTimer);
+        window.__toastTimer = window.setTimeout(() => {
+            const t = document.getElementById("toast");
+            if (t) t.innerHTML = "";
+        }, 10000);
+        }
+    });
+    </script>
     <div class="container">
       <header class="header">
         <h1>Health Tracker</h1>

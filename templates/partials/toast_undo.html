@@ -1,0 +1,13 @@
+<div class="toast-inner">
+    <div class="toast-text">Entry deleted.</div>
+  
+    <button
+      type="button"
+      class="btn-small"
+      hx-post="/entries/{{ entry_id }}/undo?range={{ range }}"
+      hx-target="#history"
+      hx-swap="innerHTML"
+    >
+      Undo
+    </button>
+  </div>

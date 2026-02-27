@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app.db import get_weight_entry, init_db, insert_weight_entry, list_weight_entries, update_weight_entry
+from app.db import get_weight_entry, init_db, insert_weight_entry, list_weight_entries, restore_weight_entry, soft_delete_weight_entry, update_weight_entry
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -130,4 +130,45 @@ def patch_entry(
     return templates.TemplateResponse(
         "partials/history_row.html",
         {"request": request, "e": e2},
+    )
+
+
+@app.delete("/entries/{entry_id}", response_class=HTMLResponse)
+def delete_entry(request: Request, entry_id: int, range: str = "30d"):
+    soft_delete_weight_entry(entry_id)
+
+    entries = list_weight_entries(range_key=range)
+
+    # Return updated history + an out-of-band toast update
+    history_html = templates.get_template("partials/history.html").render(
+        request=request,
+        entries=entries,
+    )
+    toast_html = templates.get_template("partials/toast_undo.html").render(
+        request=request,
+        entry_id=entry_id,
+        range=range,
+    )
+
+    # hx-swap-oob updates #toast without it being the target
+    return HTMLResponse(
+        history_html
+        + f'<div id="toast" hx-swap-oob="innerHTML">{toast_html}</div>'
+    )
+
+
+@app.post("/entries/{entry_id}/undo", response_class=HTMLResponse)
+def undo_delete(request: Request, entry_id: int, range: str = "30d"):
+    restore_weight_entry(entry_id)
+
+    entries = list_weight_entries(range_key=range)
+    history_html = templates.get_template("partials/history.html").render(
+        request=request,
+        entries=entries,
+    )
+
+    # Clear toast
+    return HTMLResponse(
+        history_html
+        + '<div id="toast" hx-swap-oob="innerHTML"></div>'
     )

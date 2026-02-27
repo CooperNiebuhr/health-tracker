@@ -148,3 +148,35 @@ def update_weight_entry(
         conn.commit()
     finally:
         conn.close()
+
+
+def soft_delete_weight_entry(entry_id: int) -> None:
+    conn = connect()
+    try:
+        conn.execute(
+            """
+            UPDATE weight_entries
+            SET deleted_at = datetime('now'), updated_at = datetime('now')
+            WHERE id = ? AND deleted_at IS NULL
+            """,
+            (entry_id,),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def restore_weight_entry(entry_id: int) -> None:
+    conn = connect()
+    try:
+        conn.execute(
+            """
+            UPDATE weight_entries
+            SET deleted_at = NULL, updated_at = datetime('now')
+            WHERE id = ?
+            """,
+            (entry_id,),
+        )
+        conn.commit()
+    finally:
+        conn.close()

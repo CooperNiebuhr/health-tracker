@@ -21,8 +21,13 @@
       Edit
     </button>
 
-    <!-- Delete wiring comes in Step 6 -->
-    <button type="button" class="btn-small" disabled title="Step 6">
+    <button
+      type="button"
+      class="btn-small"
+      hx-delete="/entries/{{ e['id'] }}?range=30d"
+      hx-target="#history"
+      hx-swap="innerHTML"
+    >
       Delete
     </button>
   </div>

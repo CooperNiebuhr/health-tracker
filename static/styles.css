@@ -183,3 +183,32 @@
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
+
+  #toast {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 16px;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 50;
+  }
+  
+  .toast-inner {
+    pointer-events: auto;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: #0f1117;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    max-width: 720px;
+    width: calc(100% - 32px);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  }
+  
+  .toast-text {
+    flex: 1;
+  }
